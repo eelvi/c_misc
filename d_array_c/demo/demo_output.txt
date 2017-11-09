@@ -1,0 +1,21 @@
+//output of demo.c
+initial size:0, cap:0
+	after reserving 10 elements:
+size:0, cap:16
+	added 24 elements
+	after adding:
+size:24, cap:32
+printing 24 elements:
+	[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+
+
+deleting elements at indices 0, 4, and 7:printing 21 elements:
+	[1,2,3,5,6,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+
+
+shrinking size to 12:printing 12 elements:
+	[1,2,3,5,6,8,9,10,11,12,13,14]
+
+	current size:
+size: 12, cap:16
+freed darray, return code: 0

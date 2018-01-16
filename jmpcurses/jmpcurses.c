@@ -25,17 +25,20 @@ typedef struct{
 
     } pstate;
 
-long long time_stamp(){ //ms
+long long time_stamp() 
+{ 
     struct timeval te;
     gettimeofday(&te, NULL);
     return te.tv_usec/1000;
 }
 
-void on_resize( pstate *state){
+void on_resize( pstate *state)
+{
     getmaxyx( state->win, state->term_max_y, state->term_max_x );
 }
 
-void init_tick(pstate *state){
+void init_tick(pstate *state)
+{
     
     on_resize(state);
     state->prev_t=time_stamp();
@@ -44,7 +47,8 @@ void init_tick(pstate *state){
 }
 
 
-void handle_input( pstate *state, int input ){
+void handle_input( pstate *state, int input )
+{
     float mov_speed = 5.0f;
     float anti_grav = 1.4f;
 
@@ -77,13 +81,15 @@ void handle_input( pstate *state, int input ){
     
 }
 
-void do_bounce (pstate *state){
+void do_bounce (pstate *state)
+{
     float coeff = 0.7;
     state->vec_y = -(state->vec_y * coeff);
     state->pos_y = 0.01;
 }
 
-void gravity( pstate *state ){
+void gravity( pstate *state )
+{
     float gravity = 0.250f; //4 steps per second
     if (state->pos_y > 0.005f){
         state->vec_y -= ( state->dt * gravity );
@@ -101,7 +107,8 @@ void gravity( pstate *state ){
 
 }
 
-void friction(pstate *state){
+void friction(pstate *state)
+{
     float coefficent = 0.50;
     if (state->vec_x < 0.2)
         coefficent *= 2;
@@ -113,14 +120,16 @@ void friction(pstate *state){
     }
 }
 
-void motion(pstate *state){
+void motion(pstate *state)
+{
     state->pos_x += state->vec_x;
     state->pos_y += state->vec_y;
 
     friction(state);
 }
 
-void translate(pstate *state, int *y, int *x){
+void translate(pstate *state, int *y, int *x)
+{
     int x_base = state->term_max_x / 2;
     x_base = x_base + ( (int) state->pos_x );
     while ( x_base > state->term_max_x-1 || x_base < 0 ){
@@ -134,7 +143,8 @@ void translate(pstate *state, int *y, int *x){
 
 }
 
-void draw(pstate *state){
+void draw(pstate *state)
+{
     int pos_x, pos_y;
     translate(state, &pos_y, &pos_x);
 
@@ -152,7 +162,8 @@ void draw(pstate *state){
 
 }
 
-void tick(pstate* state){
+void tick(pstate* state)
+{
     long long tstmp = time_stamp();
     if (state->prev_t < tstmp) //wrap around thing
         state->dt = (float) (tstmp - state->prev_t)/1000.0; //10 ms will be 0.010

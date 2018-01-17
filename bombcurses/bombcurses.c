@@ -77,7 +77,8 @@ int xy_to_occoupied_idx(pstate *state, float x, float y)
     int xp = (int)x;
     int yp = (int)y;
 
-    if ( xp > state->term_max_x - 1 || yp > state->term_max_y - 1 ) {
+    if ( xp > state->term_max_x - 1 || xp<0 
+            || yp > state->term_max_y - 1 || yp<0 ) {
         return -1;
     }
 
@@ -185,14 +186,14 @@ void init_tick(pstate *state)
 
     state->detonated = 0;
     state->paused = 1;
-    state->cursor_pos_y = state->term_max_y / 2;
+    state->cursor_pos_y = state->term_max_y-6;
     state->cursor_pos_x = state->term_max_x / 2;
 
     
     int width = 4 + state->restarts*4;
     int height = 3 + state->restarts*2;
 
-    if ( !create_box( state, width, height, ( state->term_max_x +width )/2 ) ){
+    if ( !create_box( state, width, height, ( state->term_max_x -width )/2 ) ){
         exit(1);
     }
 }
@@ -213,7 +214,6 @@ void restart(pstate *state)
 void detonate( pstate *state, bomb *the_bomb )
 {
     float factor = the_bomb->f;
-    float sx,sy;
     float dx,dy;
     
     particle *particles = state->particles;
@@ -222,15 +222,13 @@ void detonate( pstate *state, bomb *the_bomb )
 
     for (int i = 0; i < state->n_particles; i++) {
         
-        dx = (particles[i].pos_x - the_bomb->x) ;
-        dy = (particles[i].pos_y - the_bomb->y) ;
-        sx = (dx>0.0)?1.0:-1.0;
-        sy = (dy>0.0)?1.0:-1.0;
-        dx *= sx; //abs value
-        dy *= sy;
+        dx = ( the_bomb->x - particles[i].pos_x ) ;
+        dy = ( the_bomb->y - particles[i].pos_y ) ;
+        dy *= 2;
 
-        particles[i].vx += sx*factor / sqrt(dx);
-        particles[i].vy += sy*factor / sqrt(dy);
+        particles[i].vx -= factor/(dx*dx)* ( (particles[i].pos_x > the_bomb->x)?-1.0f:1.0f);
+
+        particles[i].vy -= factor/(dy*dy)* ( (particles[i].pos_y > the_bomb->y)?-1.0f:1.0f);
 
     }
 
@@ -263,9 +261,9 @@ void place_bomb( pstate *state )
     if (!new_bomb)
         return;
     new_bomb->x = state->cursor_pos_x;
-    new_bomb->y = state->term_max_y - state->cursor_pos_y -1;
+    new_bomb->y = state->term_max_y - state->cursor_pos_y -1 ;
 
-    new_bomb->f = 3.91;
+    new_bomb->f = 8.91;
     new_bomb->next = NULL;
 
     if ( !state->root_bomb ){
@@ -356,7 +354,7 @@ enum relative_directions{
 void gravity( pstate *state )
 {
 
-    float gravity = 1.850f; 
+    float gravity = 3.550f; 
 
     particle *particles = state->particles;
     if (!particles)
@@ -398,7 +396,7 @@ void motion(pstate *state)
     if (!particles)
         return;
 
-    memset( state->occoupied, 0, state->occoupied_size);
+    memset( state->occoupied, ' ', state->occoupied_size);
 
     int x, y, idx;
     for (int i = 0; i < state->n_particles; i++) {
@@ -411,7 +409,7 @@ void motion(pstate *state)
         idx = xy_to_occoupied_idx( state, x, y);
 
         if (idx >= 0) { //returns negative when outside screen
-            if ( state->occoupied[idx] ) { //collision
+            if ( state->occoupied[idx]!=' ' ) { //collision
                 particle *other = occoupied_idx_to_particle( state, idx, particles + i );
 
                 particles[i].pos_x -= particles[i].vx * state->dt;
@@ -445,28 +443,13 @@ void motion(pstate *state)
 void draw_particles(pstate *state)
 {
 
-    int x = 0;
-    int y = 0;
-
-    int x_max = state->term_max_x;
+    //attempt to fix slow rendering
 
     #if WITH_COLOR
         attron(COLOR_PAIR(1));
     #endif
 
-    for (int i = 0; i < state->occoupied_size; i++) {
-
-        if (state->occoupied[i]) {
-            mvwaddch( state->win, y, x, '#') ;
-        }
-
-        if (++x == x_max) {
-        y++;
-            //y--;
-            x = 0;
-        }
-
-    }
+    mvwaddstr(state->win, 0, 0, state->occoupied);
     #if WITH_COLOR
         attron(COLOR_PAIR(1));
     #endif
@@ -555,7 +538,6 @@ void draw_bombs(pstate *state)
 void draw(pstate *state)
 {
 
-    wclear(state->win);
 
     draw_particles(state);
     if (!state->detonated){

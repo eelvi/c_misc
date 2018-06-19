@@ -53,4 +53,17 @@ int main()
         printf("atof(\"%s\"): %f\n", nums[i], _atof(nums[i]));
     }
 
+
+
+
+    int r;
+    r = to_int(f_0_15625);
+    printf("r= %d\n", r);
+    r = to_int(13);
+    printf("r= %d\n", r);
+    r = to_int(-13);
+    printf("r= %d\n", r);
+    r = to_int(423);
+    printf("r= %d\n", r);
+
 }

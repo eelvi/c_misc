@@ -2,9 +2,7 @@
 .PHONY: all clean
 all: test
 
-SRC := float.c
-
-test: test.o float.o 
+test: test.o float.o casts.o
 
 clean:
 	-rm -f *.o

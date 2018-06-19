@@ -19,7 +19,7 @@ int to_int(float f)
     exp = uexp - 127;
     coeff = (e.u & 0x007fffffu) | (0x1 << 23);
 
-    if ((exp > 0) && (exp <= 23)){
+    if ((exp >= 0) && (exp <= 23)){
         r = coeff >> (23 - exp);
         return (sign)? -r : r;
     }

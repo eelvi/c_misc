@@ -59,11 +59,13 @@ int main()
     int r;
     r = to_int(f_0_15625);
     printf("r= %d\n", r);
-    r = to_int(13);
+    r = to_int(1.0);
     printf("r= %d\n", r);
-    r = to_int(-13);
+    r = to_int(13.0);
     printf("r= %d\n", r);
-    r = to_int(423);
+    r = to_int(-13.0);
+    printf("r= %d\n", r);
+    r = to_int(423.0);
     printf("r= %d\n", r);
 
 }
